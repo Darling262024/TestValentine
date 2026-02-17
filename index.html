@@ -1,5 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
 
 <head>
     <meta charset="UTF-8">
@@ -34,9 +36,9 @@
             </header>
 
             <section class="headline">
-                <h1>¡EL MUNDO SE DETIENE: ERES EL AMOR DE MI VIDA!</h1>
+                <h1>¡EL MUNDO SE DETIENE SI NO ESTAR CONMIGO</h1>
                 <p class="subheadline">Expertos no logran explicar cómo alguien puede ser tan perfecta y hermosa al
-                    mismo tiempo.</p>
+                    mismo tiempo ❤️ </p>
             </section>
 
             <hr class="double-hr">
@@ -54,9 +56,13 @@
                     <div class="video-section">
                         <h3>REPORTAJE ESPECIAL</h3>
                         <div class="video-container">
-                            <video id="miVideo" width="100%" autoplay loop muted playsinline>
-                                <source src="video.mp4" type="video/mp4">
-                            </video>
+                            <img src="49.png" class="estilo-foto tamano-49">
+                            <p class="texto-personalizado">
+                                Hare lo que sea por mi reina ❤️
+                            </p>
+                            <audio id="musicaRomantica" controls loop autoplay>
+                                <source src="musica.mp3" type="audio/mpeg">
+                            </audio>
                         </div>
                         <div class="music-animation">
                             <div class="bar"></div>
@@ -70,10 +76,12 @@
 
                 <div class="col-center">
                     <figure class="main-photo">
-                        <img src="45.png">
-                        <i>
-                            <figcaption>Te amo infinitamente mi abejita hermosa 🐝🩷</figcaption>
-                        </i>
+                        <img src="45.png" class="estilo-foto">
+                        <p>
+                            <i>
+                                <figcaption>Te amo infinitamente mi abejita hermosa 🐝🩷</figcaption>
+                            </i>
+                        </p>
                     </figure>
                     <div class="quote-box">
                         "Te amo no solo por lo que eres, sino por lo que soy cuando estoy contigo."
@@ -100,7 +108,9 @@
                             <br><small>(Haz clic para responder)</small>
                         </p>
                     </div>
-
+                    <audio id="sonidoError">
+                        <source src="error.mp3" type="audio/mpeg">
+                    </audio>
                     <div class="clima">
                         <h3>PRONÓSTICO</h3>
                         <p>☀️ 100% de probabilidades de abrazos.</p>
@@ -143,9 +153,12 @@
         function abrirPeriodico() {
             document.getElementById('pantalla-carta').style.display = 'none';
             document.getElementById('periodico-contenido').style.display = 'block';
-            const v = document.getElementById('miVideo');
-            v.muted = false;
-            v.play();
+
+            const audio = document.getElementById('musicaRomantica');
+            if (audio) {
+                audio.play().catch(() => { });
+            }
+
         }
 
         const palabrasOcultas = ["AMOR", "VIDA", "TUYO", "SIEMPRE"];
@@ -170,43 +183,129 @@
 
         document.getElementById('mini-sopa').innerHTML = generarContenidoSopa();
 
+        let palabrasEncontradas = [];
+
         function jugarSopa() {
+            palabrasEncontradas = [];
+
             Swal.fire({
                 title: 'Sopa de Letras',
-                html: `<p style="margin-bottom:15px;">Encuentra las palabras: <br><b>${palabrasOcultas.join(", ")}</b></p>
-                   <div class="sopa-grid-popup">${generarContenidoSopa()}</div>
-                   <p style="font-size: 0.8em; margin-top: 15px; font-style: italic;">¡Tómale captura cuando las encuentres!</p>`,
+                html: `<p style="margin-bottom:15px;">
+                Encuentra las palabras: <br>
+                <b>${palabrasOcultas.join(", ")}</b>
+               </p>
+               <div class="sopa-grid-popup">
+                    ${generarContenidoSopa()}
+               </div>
+               <p style="font-size: 0.8em; margin-top: 15px; font-style: italic;">
+               Selecciona las letras y luego presiona "¡Lo logré!"
+               </p>`,
                 confirmButtonText: '¡Lo logré!',
                 confirmButtonColor: '#8b0000',
                 customClass: {
                     popup: 'swal-sopa-container'
                 },
 
+                didOpen: () => {
+                    const spans = document.querySelectorAll('.sopa-grid-popup span');
+
+                    spans.forEach(span => {
+                        span.addEventListener("click", () => {
+                            span.classList.toggle("seleccionada");
+                        });
+                    });
+                },
+
                 preConfirm: () => {
-        const seleccion = obtenerSeleccion();
 
-        const todasEncontradas = palabrasOcultas.every(p =>
-            seleccion.includes(p)
-        );
+                    const seleccion = obtenerSeleccion();
 
-        if (!todasEncontradas) {
-            Swal.showValidationMessage(
-                " 💔  Aún no has encontrado todas las palabras"
-            );
-            return false;
-        }
 
-        return true;
-    }
+                    if (seleccion.length === 0) {
+
+
+                        if (palabrasEncontradas.length > 0) {
+                            Swal.showValidationMessage(
+                                `❤️ Ya llevas ${palabrasEncontradas.length} palabra(s). Sigue buscando.`
+                            );
+                        } else {
+                            reproducirError();
+                            Swal.showValidationMessage(
+                                "💔 No encontraste ninguna palabra todavía"
+                            );
+                        }
+
+                        return false;
+                    }
+
+                    // 🔥 Si la palabra es válida
+                    if (palabrasOcultas.includes(seleccion)) {
+
+                        if (!palabrasEncontradas.includes(seleccion)) {
+                            palabrasEncontradas.push(seleccion);
+                            reproducirSonido();
+                        }
+
+                        limpiarSeleccion();
+
+                        if (palabrasEncontradas.length === palabrasOcultas.length) {
+                            confetti({
+                                particleCount: 150,
+                                spread: 90,
+                                origin: { y: 0.6 }
+                            });
+
+                            Swal.fire({
+                                title: "💖 ¡Lo lograste! 💖",
+                                text: "Eres la mejor mi amorcito ❤️",
+                                icon: "success"
+                            });
+
+                            return true;
+                        }
+
+                        Swal.showValidationMessage(
+                            `❤️ Encontraste ${seleccion}. Te faltan ${palabrasOcultas.length - palabrasEncontradas.length}`
+                        );
+
+                        return false;
+
+                    } else {
+
+                        reproducirError();
+
+                        Swal.showValidationMessage(
+                            "💔 Esa no es una palabra correcta"
+                        );
+
+                        limpiarSeleccion();
+                        return false;
+                    }
+                }
 
             });
         }
 
         function obtenerSeleccion() {
-            const letrasSeleccionadas = [];
-            document.querySelectorAll('.sopa-grid-popup span.seleccionada')
-                .forEach(span => letrasSeleccionadas.push(span.textContent));
-            return letrasSeleccionadas.join("");
+            const letrasSeleccionadas = document.querySelectorAll('.sopa-grid-popup span.seleccionada');
+            let palabra = "";
+
+            letrasSeleccionadas.forEach(l => {
+                palabra += l.textContent;
+            });
+
+            return palabra;
+        }
+
+        function limpiarSeleccion() {
+            document.querySelectorAll('.seleccionada')
+                .forEach(l => l.classList.remove('seleccionada'));
+        }
+
+        function reproducirSonido() {
+            const sonido = new Audio("correcto.mp3");
+            sonido.volume = 1;
+            sonido.play().catch(() => { });
         }
 
         function mostrarAlerta() {
@@ -227,6 +326,22 @@
             let msg = tipo === 'mucho' ? '¡Yo te amo mucho más!' : tipo === 'infinito' ? '¡Nuestro amor es eterno!' : '¡Y mañana será aún mejor!';
             Swal.fire({ title: '❤️', text: msg, confirmButtonColor: '#8b0000', background: '#fdf6e3 url(https://www.transparenttextures.com/patterns/parchment.png)' });
         }
+
+        const musica = document.getElementById("musicaRomantica");
+
+        if (musica) {
+            musica.volume = 0.1; // 0.0 a 1.0
+        }
+
+        function reproducirError() {
+            const sonido = document.getElementById("sonidoError");
+            if (sonido) {
+                sonido.currentTime = 0;
+                sonido.volume = 1;
+                sonido.play().catch(() => { });
+            }
+        }
+
     </script>
 </body>
 
