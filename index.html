@@ -198,9 +198,9 @@
                     ${generarContenidoSopa()}
                </div>
                <p style="font-size: 0.8em; margin-top: 15px; font-style: italic;">
-               Selecciona las letras y luego presiona "¡Lo logré!"
+               Selecciona las letras y luego presiona "CONFIRMACION"
                </p>`,
-                confirmButtonText: '¡Lo logré!',
+                confirmButtonText: 'CONFIRMACION',
                 confirmButtonColor: '#8b0000',
                 customClass: {
                     popup: 'swal-sopa-container'
@@ -238,7 +238,6 @@
                         return false;
                     }
 
-                    // 🔥 Si la palabra es válida
                     if (palabrasOcultas.includes(seleccion)) {
 
                         if (!palabrasEncontradas.includes(seleccion)) {
